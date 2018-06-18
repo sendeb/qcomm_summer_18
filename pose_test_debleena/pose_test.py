@@ -12,13 +12,22 @@ def isRotationMatrix(R) :
     I = np.identity(3, dtype = R.dtype)
     n = np.linalg.norm(I - shouldBeIdentity)
     return n < 1e-6
- 
+
+def draw_axis(img, R, t, K):
+	# unit is mm
+	rotV, _= cv2.Rodrigues(R)
+	points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+	axisPoints, _ = cv2.projectPoints(points, rotV, t, K, (0, 0, 0, 0))
+	cv2.line(img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255,0,0), 3)
+	cv2.line(img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0,255,0), 3)
+	cv2.line(img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0,0,255), 3)
+	return img
  
 # Calculates rotation matrix to euler angles
 #Returns in radians
 # The result is the same as MATLAB except the order
 # of the euler angles ( x and z are swapped ).
-def rotationMatrixToEulerAngles(R) :
+def rotationMatrixToEulerAngles(R):
  
     assert(isRotationMatrix(R))
      
@@ -114,10 +123,12 @@ print (roll_pitch_yaw[2])
 for p in image_points:
     cv2.circle(im, (int(p[0]), int(p[1])), 3, (0,0,255), -1)
  
-p1 = ( int(image_points[0][0]), int(image_points[0][1]))
-p2 = ( int(nose_end_point2D[0][0][0]), int(nose_end_point2D[0][0][1]))
+# p1 = ( int(image_points[0][0]), int(image_points[0][1]))
+# p2 = ( int(nose_end_point2D[0][0][0]), int(nose_end_point2D[0][0][1]))
  
-cv2.line(im, p1, p2, (255,0,0), 2)
+# cv2.line(im, p1, p2, (255,0,0), 2)
+
+draw_axis(im, rotation_vector, translation_vector, camera_matrix)
  
 # Display image
 cv2.imshow("Output", im)
